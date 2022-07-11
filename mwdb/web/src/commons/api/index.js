@@ -361,27 +361,30 @@ function getAttributeDefinition(key) {
     return axios.get(`/attribute/${key}`);
 }
 
-function addAttributeDefinition(key, label, description, url_template, hidden) {
+function addAttributeDefinition(key, label, description, hidden) {
     return axios.post("/attribute", {
         key,
         label,
         description,
-        url_template,
         hidden,
     });
 }
 
-function updateAttributeDefinition(
+function updateAttributeDefinition({
     key,
     label,
     description,
     url_template,
-    hidden
-) {
+    rich_template,
+    example_value,
+    hidden,
+}) {
     return axios.put(`/attribute/${key}`, {
         label,
         description,
         url_template,
+        rich_template,
+        example_value,
         hidden,
     });
 }
@@ -419,6 +422,12 @@ async function requestFileDownloadLink(id) {
     const response = await axios.post(`/file/${id}/download`);
     const baseURL = getApiForEnvironment();
     return `${baseURL}/file/${id}/download?token=${response.data.token}`;
+}
+
+async function requestZipFileDownloadLink(id) {
+    const response = await axios.post(`/file/${id}/download/zip`);
+    const baseURL = getApiForEnvironment();
+    return `${baseURL}/file/${id}/download/zip?token=${response.data.token}`;
 }
 
 function uploadFile(file, parent, upload_as, attributes, fileUploadTimeout) {
@@ -514,6 +523,14 @@ async function requestRemoteFileDownloadLink(remote, id) {
     return `${baseURL}/remote/${remote}/api/file/${id}/download?token=${response.data.token}`;
 }
 
+async function requestRemoteZipFileDownloadLink(remote, id) {
+    const response = await axios.post(
+        `/remote/${remote}/api/file/${id}/download/zip`
+    );
+    const baseURL = getApiForEnvironment();
+    return `${baseURL}/remote/${remote}/api/file/${id}/download/zip?token=${response.data.token}`;
+}
+
 function getKartonAnalysesList(id) {
     return axios.get(`/object/${id}/karton`);
 }
@@ -607,6 +624,7 @@ const api = {
     removeAttributePermission,
     downloadFile,
     requestFileDownloadLink,
+    requestZipFileDownloadLink,
     uploadFile,
     getRemoteNames,
     pushObjectRemote,
@@ -626,6 +644,7 @@ const api = {
     getRemoteObjectAttributes,
     downloadRemoteFile,
     requestRemoteFileDownloadLink,
+    requestRemoteZipFileDownloadLink,
     getKartonAnalysesList,
     getKartonAnalysisStatus,
     resubmitKartonAnalysis,

@@ -19,8 +19,11 @@ class DownloadResource(Resource):
         summary: Download file
         description: |
             Returns file contents based on provided file download token.
+
+            Deprecated: use GET /file/{identifier}/download instead.
+        deprecated: true
         tags:
-            - deprecated
+            - file
         parameters:
             - in: path
               name: access_token
@@ -63,10 +66,13 @@ class RequestSampleDownloadResource(Resource):
         summary: Get file download URL
         description: |
             Returns download URL for given file.
+
+            Deprecated: use POST /file/{identifier}>/download instead.
         security:
             - bearerAuth: []
+        deprecated: true
         tags:
-            - deprecated
+            - file
         parameters:
             - in: path
               name: identifier
@@ -93,7 +99,5 @@ class RequestSampleDownloadResource(Resource):
 
         download_token = file.generate_download_token()
         schema = DownloadURLResponseSchema()
-        url = api.relative_url_for(
-            DownloadResource, access_token=download_token.decode()
-        )
+        url = api.relative_url_for(DownloadResource, access_token=download_token)
         return schema.dump({"url": url})

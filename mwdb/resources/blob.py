@@ -138,8 +138,14 @@ class TextBlobResource(ObjectResource, TextBlobUploader):
                       metakeys:
                         - key: string
                           value: string
+                      attributes:
+                        - key: string
+                          value: string
                       tags:
                         - tag: string
+                      karton_id: string
+                      karton_arguments:
+                        string: string
         responses:
             200:
                 description: Text blob uploaded succesfully
@@ -216,10 +222,13 @@ class TextBlobItemResource(ObjectItemResource, TextBlobUploader):
             Uploads a new text blob.
 
             Requires `adding_blobs` capability.
+
+            Deprecated: use POST /blob method instead.
         security:
             - bearerAuth: []
+        deprecated: true
         tags:
-            - deprecated
+            - blob
         parameters:
             - in: path
               name: identifier

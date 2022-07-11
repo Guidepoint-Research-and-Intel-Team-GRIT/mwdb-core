@@ -1,15 +1,17 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useOutletContext } from "react-router-dom";
 import api from "@mwdb-web/commons/api";
 import {
     DateString,
     ConfirmationModal,
     EditableItem,
+    PseudoEditableItem,
     GroupBadge,
     useViewAlert,
 } from "@mwdb-web/commons/ui";
 import { makeSearchLink } from "@mwdb-web/commons/helpers";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faBan, faTrash } from "@fortawesome/free-solid-svg-icons";
 
 function UserItem(props) {
     let value = props.value ? props.value : "never";
@@ -21,8 +23,9 @@ function UserItem(props) {
     );
 }
 
-export default function UserDetails({ user, getUser }) {
+export default function UserDetails() {
     const viewAlert = useViewAlert();
+    const { user, getUser } = useOutletContext();
     const [isDeleteModalOpen, setDeleteModalOpen] = useState(false);
     const [isDeleteModalDisabled, setDeleteModalDisabled] = useState(false);
     const [isBlockModalOpen, setBlockModalOpen] = useState(false);
@@ -123,19 +126,23 @@ export default function UserDetails({ user, getUser }) {
                         label="Groups"
                         value={user.groups && user.groups.length}
                     >
-                        {user.groups &&
-                            user.groups
-                                .filter((group) => !group.private)
-                                .sort((groupA, groupB) =>
-                                    groupA.name.localeCompare(groupB.name)
-                                )
-                                .map((group) => (
-                                    <GroupBadge
-                                        group={group}
-                                        clickable
-                                        basePath="/settings"
-                                    />
-                                ))}
+                        <PseudoEditableItem
+                            editLocation={`/settings/user/${user.login}/groups`}
+                        >
+                            {user.groups &&
+                                user.groups
+                                    .filter((group) => !group.private)
+                                    .sort((groupA, groupB) =>
+                                        groupA.name.localeCompare(groupB.name)
+                                    )
+                                    .map((group) => (
+                                        <GroupBadge
+                                            group={group}
+                                            clickable
+                                            basePath="/settings"
+                                        />
+                                    ))}
+                        </PseudoEditableItem>
                     </UserItem>
                 </tbody>
             </table>
@@ -144,7 +151,11 @@ export default function UserDetails({ user, getUser }) {
                 <li className="nav-item">
                     <Link
                         className="nav-link"
-                        to={makeSearchLink("uploader", user.login, false, "/")}
+                        to={makeSearchLink({
+                            field: "uploader",
+                            value: user.login,
+                            pathname: "/",
+                        })}
                     >
                         Search for uploads
                     </Link>
@@ -181,7 +192,7 @@ export default function UserDetails({ user, getUser }) {
                                 setBlockModalOpen(true);
                             }}
                         >
-                            <FontAwesomeIcon icon="ban" />
+                            <FontAwesomeIcon icon={faBan} />
                             Unblock user
                         </a>
                     ) : (
@@ -193,7 +204,7 @@ export default function UserDetails({ user, getUser }) {
                                 setBlockModalOpen(true);
                             }}
                         >
-                            <FontAwesomeIcon icon="ban" />
+                            <FontAwesomeIcon icon={faBan} />
                             Block user
                         </a>
                     )}
@@ -205,7 +216,7 @@ export default function UserDetails({ user, getUser }) {
                             setDeleteModalOpen(true);
                         }}
                     >
-                        <FontAwesomeIcon icon="trash" />
+                        <FontAwesomeIcon icon={faTrash} />
                         Remove user
                     </a>
                 </li>

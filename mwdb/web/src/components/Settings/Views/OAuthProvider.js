@@ -6,6 +6,7 @@ import {
     useViewAlert,
 } from "@mwdb-web/commons/ui";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faTrash } from "@fortawesome/free-solid-svg-icons";
 import { useParams } from "react-router-dom";
 
 function ProviderItem(props) {
@@ -21,7 +22,7 @@ function ProviderItem(props) {
 export default function OAuthProvider() {
     const viewAlert = useViewAlert();
     const { name } = useParams();
-    const [provider, setProvider] = useState({});
+    const [provider, setProvider] = useState(null);
     const [isDeleteModalOpen, setDeleteModalOpen] = useState(false);
     const [isDeleteModalDisabled, setDeleteModalDisabled] = useState(false);
 
@@ -93,7 +94,7 @@ export default function OAuthProvider() {
                         <EditableItem
                             name="client_secret"
                             type="client_secret"
-                            defaultValue={provider.client_secret}
+                            defaultValue={provider.client_secret || ""}
                             onSubmit={handleSubmit}
                             masked
                         />
@@ -143,7 +144,7 @@ export default function OAuthProvider() {
                             setDeleteModalOpen(true);
                         }}
                     >
-                        <FontAwesomeIcon icon="trash" />
+                        <FontAwesomeIcon icon={faTrash} />
                         Remove provider
                     </a>
                 </li>

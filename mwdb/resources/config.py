@@ -254,8 +254,14 @@ class ConfigResource(ObjectResource, ConfigUploader):
                       metakeys:
                        - key: string
                          value: string
+                      attributes:
+                       - key: string
+                         value: string
                       tags:
                        - tag: string
+                      karton_id: string
+                      karton_arguments:
+                       string: string
         responses:
             200:
                 description: Information about uploaded config
@@ -338,10 +344,13 @@ class ConfigItemResource(ObjectItemResource, ConfigUploader):
             Uploads a new config.
 
             Requires `adding_configs` capability.
+
+            Deprecated: use POST /config method instead.
         security:
             - bearerAuth: []
+        deprecated: true
         tags:
-            - deprecated
+            - config
         parameters:
             - in: path
               name: identifier

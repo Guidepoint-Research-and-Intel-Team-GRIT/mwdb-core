@@ -1,8 +1,8 @@
 import React from "react";
-import { useLocation, Link } from "react-router-dom";
+import { useSearchParams, Link } from "react-router-dom";
 
-import queryString from "query-string";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faRandom } from "@fortawesome/free-solid-svg-icons";
 
 import { RecentView, RecentRow, RecentInnerRow } from "./RecentView";
 import { TagList } from "@mwdb-web/commons/ui";
@@ -10,9 +10,9 @@ import { DateString, ObjectLink, Hash } from "@mwdb-web/commons/ui";
 import { useRemotePath } from "@mwdb-web/commons/remotes";
 
 export function RecentBlobRow(props) {
-    let location = useLocation();
     const remotePath = useRemotePath();
-    const diffWith = queryString.parse(location.search)["diff"];
+    const searchParams = useSearchParams()[0];
+    const diffWith = searchParams.get("diff");
     const blobType = (
         <a
             href="#query"
@@ -37,7 +37,7 @@ export function RecentBlobRow(props) {
     );
     const blobIcon = diffWith && (
         <FontAwesomeIcon
-            icon="random"
+            icon={faRandom}
             size="x"
             style={{ marginRight: "0.3em" }}
         />
@@ -149,8 +149,8 @@ export function RecentBlobHeader() {
 }
 
 export default function RecentBlobs(props) {
-    let location = useLocation();
-    const diffWith = queryString.parse(location.search)["diff"];
+    const searchParams = useSearchParams()[0];
+    const diffWith = searchParams.get("diff");
     return (
         <React.Fragment>
             {diffWith ? (

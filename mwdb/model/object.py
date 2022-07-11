@@ -359,8 +359,9 @@ class Object(db.Model):
 
         try:
             # Remove inherited permissions from parent
-            for share in parent.shares:
-                self.uninherit_share(share)
+            if parent.id != self.id:
+                for share in parent.shares:
+                    self.uninherit_share(share)
             # Remove parent
             self.parents.remove(parent)
             db.session.flush()
@@ -696,13 +697,15 @@ class Object(db.Model):
         db_tag.tag = tag_name
         db_tag, _ = Tag.get_or_create(db_tag)
 
+        if db_tag in self.tags:
+            return False
+
         is_new = False
         db.session.begin_nested()
         try:
-            if db_tag not in self.tags:
-                self.tags.append(db_tag)
-                db.session.commit()
-                is_new = True
+            self.tags.append(db_tag)
+            db.session.commit()
+            is_new = True
         except IntegrityError:
             db.session.rollback()
             db.session.refresh(self)
@@ -725,13 +728,15 @@ class Object(db.Model):
         else:
             db_tag = db_tag.one()
 
+        if db_tag not in self.tags:
+            return False
+
         is_removed = False
         db.session.begin_nested()
         try:
-            if db_tag in self.tags:
-                self.tags.remove(db_tag)
-                db.session.commit()
-                is_removed = True
+            self.tags.remove(db_tag)
+            db.session.commit()
+            is_removed = True
         except IntegrityError:
             db.session.rollback()
             db.session.refresh(self)
@@ -924,10 +929,21 @@ class Object(db.Model):
         Assigns KartonAnalysis to the object
         """
         analysis, is_new = KartonAnalysis.get_or_create(analysis_id, self)
+
         if not is_new and analysis.id not in [
             existing.id for existing in self.analyses
         ]:
-            self.analyses.append(analysis)
+            db.session.begin_nested()
+            try:
+                self.analyses.append(analysis)
+                db.session.commit()
+                is_new = True
+            except IntegrityError:
+                # The same relationship was added concurrently
+                db.session.rollback()
+                db.session.refresh(self)
+                if analysis.id not in [existing.id for existing in self.analyses]:
+                    raise
 
         if commit:
             db.session.commit()
@@ -957,13 +973,15 @@ class Object(db.Model):
         if db_analysis is None:
             return False
 
+        if db_analysis not in self.analyses:
+            return False
+
         is_removed = False
         db.session.begin_nested()
         try:
-            if db_analysis in self.analyses:
-                self.analyses.remove(db_analysis)
-                db.session.commit()
-                is_removed = True
+            self.analyses.remove(db_analysis)
+            db.session.commit()
+            is_removed = True
         except IntegrityError:
             db.session.rollback()
             db.session.refresh(self)
