@@ -5,7 +5,7 @@ from typing import Any, Set
 import jwt
 
 from mwdb.core.config import app_config
-#test
+
 
 class AuthScope(Enum):
     session = "session"
